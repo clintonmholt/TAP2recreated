@@ -28,6 +28,9 @@ Two conventions were inferred from the released benchmark. The scores reproduced
 
 We compared three generations of structure prediction (ABodyBuilder1, ABodyBuilder2, and FlashABB) and three generations of TAP scoring (TAP1, TAP2, and FlashTAP). The six configurations below use the same 198 antibodies, matched by exact heavy- and light-chain sequences across the 2019 and 2024 cohorts.
 
+**TL;DR**
+We consider **ABodyBuilder2 + TAP2** the most reliable method for detecting antibody developability flags. Using either FlashTAP and/or FlashABB gave noticeably worse results.
+
 | ID | Structure predictor | Scoring method | Score source | Any amber | Any red |
 |---|---|---|---|---:|---:|
 | A | ABodyBuilder2 | Original TAP2 | Published 2024 scores | 37 | 0 |
@@ -43,13 +46,11 @@ FlashTAP ran in float32 with `flash-abb` 0.0.5. Correlations and flags cover the
 
 ![Six-way Venn diagram and exact intersection counts for amber-flagged antibodies](docs/flash_comparison_amber.svg)
 
-We consider **ABodyBuilder2 + TAP2** the most reliable reference for reproducing the published TAP2 scores. The recreated scorer reproduced the published ABodyBuilder2 flag calls. This benchmark measures agreement with the published scores.
+FlashTAP is the latest TAP algorithm and is a departure from the last two. It is a learned regression head on structure-aware embeddings as opposed to the structure-based TAP1 and TAP2 scores, particularly for PSH. Against original TAP2, PSH Pearson *r* was 0.686 with the ABodyBuilder2 backbone and 0.713 with FlashABB. While these scores deviate more than I was hoping for FlashTAP's differentiable scoring head may make it useful for developability optimization and so it is still a useful tool. [FlashABB and FlashTAP preprint](https://doi.org/10.64898/2026.06.03.729879)
 
-FlashTAP is a learned regression head on structure-aware embeddings. Its predictions depart from the structure-based TAP1 and TAP2 scores, particularly for PSH. Against original TAP2, PSH Pearson *r* was 0.686 with the ABodyBuilder2 backbone and 0.713 with FlashABB. FlashTAP's differentiable scoring head may make it useful for developability optimization. [FlashABB and FlashTAP preprint](https://doi.org/10.64898/2026.06.03.729879)
+**FlashABB + recreated TAP2** showed the weakest overall agreement with published TAP2. Every FlashABB structure in the matched set had at least one atom-atom clash compared to none in AbodyBuilder2 structures. These clashes artificially inflate PSH and are likely due to the lack of triangle attention or molecular-dynamics refinement. 
 
-**FlashABB + recreated TAP2** showed the weakest overall agreement with published TAP2. Every FlashABB structure in the matched set had at least one PSH-scored inter-residue heavy-atom separation below 1.2 Å, compared with none of the ABodyBuilder2 structures. These clashes inflate PSH because each pair contributes in proportion to the inverse square of its closest-atom distance. FlashABB's speed-oriented design omits AlphaFold2-style triangle attention and molecular-dynamics refinement. Skipping refinement is a plausible contributor to the clashes. This comparison did not isolate the effect of either design choice.
-
-In a sensitivity check, flooring the scored pair distances at **1.2 Å** increased PSH Pearson *r* from **0.195 to 0.689**, roughly **3.5-fold**. We retained the published inverse-square form without this experimental floor to stay close to the documented scoring method. We could not verify whether the original TAP2 implementation applied a lower distance bound.
+To investigate the effect of these clashes we tried altering the PSH algorithm to have a minimum atom-atom distance of **1.2 Å** which increased PSH Pearson *r* from **0.195 to 0.689**, roughly **3.5-fold** relative to TAP2 results. We kept the published inverse-square form without this experimental floor to stay close to the documented scoring method. We could not verify whether the original TAP2 implementation applied a lower distance bound.
 
 ## Usage
 
