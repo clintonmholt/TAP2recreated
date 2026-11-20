@@ -52,6 +52,21 @@ FlashTAP is the latest TAP algorithm and is a departure from the last two. It is
 
 To investigate the effect of these clashes we tried altering the PSH algorithm to have a minimum atom-atom distance of **1.2 Å** which increased PSH Pearson *r* from **0.195 to 0.689**, roughly **3.5-fold** relative to TAP2 results. We kept the published inverse-square form without this experimental floor to stay close to the documented scoring method. We could not verify whether the original TAP2 implementation applied a lower distance bound.
 
+### Rescoring FlashABB after OpenMM refinement
+
+We ran ABodyBuilder2's [official restrained OpenMM energy minimization](https://doi.org/10.1038/s42003-023-04927-7) on all 198 IMGT-numbered FlashABB structures from method E, then rescored them with TAP2recreated. All 198 passed the refinement checks, and the original residue identities and IMGT numbering were preserved. We used ImmuneBuilder 1.2, OpenMM 8.6.1, and PDBFixer 1.12.0. Four models needed a retry with OpenMM's default CPU selection because of an upstream thread-setting error. The scoring formula and flag cutoffs were the same before and after refinement.
+
+| Metric | Pearson *r* vs. published TAP2, raw FlashABB | After refinement |
+|---|---:|---:|
+| PSH | 0.195 | 0.713 |
+| PPC | 0.644 | 0.925 |
+| PNC | 0.561 | 0.945 |
+| SFvCSP | 0.904 | 0.915 |
+
+The number of models with a PSH-scored inter-residue heavy-atom contact below 1.2 Å fell from **198 to 0**. PSH mean absolute error dropped from **67.3 to 8.9**, and antibodies with any red flag across the four metrics fell from **66 to 0**. Efalizumab's PSH went from **1,165.6 to 106.3**, versus **116.8** in published TAP2.
+
+[Download the per-antibody scores, flags, and contact checks](docs/FlashABB_OpenMM_TAP2_rescores.csv).
+
 ## Usage
 
 ```sh
