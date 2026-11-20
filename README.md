@@ -16,6 +16,17 @@ The maintainer is not affiliated with the Oxford Protein Informatics Group (OPIG
 
 The scorer takes a full-atom, IMGT-numbered antibody Fv PDB and calculates total CDR length, patches of surface hydrophobicity (PSH), patches of positive charge (PPC), patches of negative charge (PNC), and the structural Fv charge symmetry parameter (SFvCSP).
 
+## Usage
+
+```sh
+python -m pip install -r requirements.txt
+python tap_score.py path/to/imgt_numbered_fv.pdb
+```
+
+Use a PDB with exactly two variable-domain chains, complete side chains, and IMGT numbering with insertion codes. The scorer writes one row of raw scores per PDB to standard output. The chain IDs default to `H` and `L`. Set `--heavy A --light B` for models with those chain IDs.
+
+For FlashABB models, assign IMGT numbers before scoring because FlashABB's PDB export uses sequential residue numbering. The published flag cutoffs were derived from ABodyBuilder2 structures. Agreement with those flag calls has been benchmarked on the archived ABodyBuilder2 structures.
+
 ## TAP2 benchmark
 
 ![Published versus recalculated TAP2 scores for 664 ABodyBuilder2 structures, with Pearson and Spearman correlations and amber and red cutoffs](docs/tap2_benchmark.svg)
@@ -66,17 +77,6 @@ We ran ABodyBuilder2's [official restrained OpenMM energy minimization](https://
 The number of models with a PSH-scored inter-residue heavy-atom contact below 1.2 Å fell from **198 to 0**. PSH mean absolute error dropped from **67.3 to 8.9**, and antibodies with any red flag across the four metrics fell from **66 to 0**. Efalizumab's PSH went from **1,165.6 to 106.3**, versus **116.8** in published TAP2.
 
 [Download the per-antibody scores, flags, and contact checks](docs/FlashABB_OpenMM_TAP2_rescores.csv).
-
-## Usage
-
-```sh
-python -m pip install -r requirements.txt
-python tap_score.py path/to/imgt_numbered_fv.pdb
-```
-
-Use a PDB with exactly two variable-domain chains, complete side chains, and IMGT numbering with insertion codes. The scorer writes one row of raw scores per PDB to standard output. The chain IDs default to `H` and `L`. Set `--heavy A --light B` for models with those chain IDs.
-
-For FlashABB models, assign IMGT numbers before scoring because FlashABB's PDB export uses sequential residue numbering. The published flag cutoffs were derived from ABodyBuilder2 structures. Agreement with those flag calls has been benchmarked on the archived ABodyBuilder2 structures.
 
 ## Reproduce the benchmark
 
