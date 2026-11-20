@@ -65,7 +65,7 @@ To investigate the effect of these clashes we tried altering the PSH algorithm t
 
 ### Rescoring FlashABB after OpenMM refinement
 
-We ran ABodyBuilder2's [official restrained OpenMM energy minimization](https://doi.org/10.1038/s42003-023-04927-7) on all 198 IMGT-numbered FlashABB structures from method E, then rescored them with TAP2recreated. All 198 passed the refinement checks, and the original residue identities and IMGT numbering were preserved. We used ImmuneBuilder 1.2, OpenMM 8.6.1, and PDBFixer 1.12.0. Four models needed a retry with OpenMM's default CPU selection because of an upstream thread-setting error. The scoring formula and flag cutoffs were the same before and after refinement.
+We ran ABodyBuilder2's [official restrained OpenMM energy minimization](https://doi.org/10.1038/s42003-023-04927-7) on all 198 IMGT-numbered FlashABB structures from method E, then rescored them with TAP2recreated. We used ImmuneBuilder 1.2, OpenMM 8.6.1, and PDBFixer 1.12.0.
 
 | Metric | Pearson *r* vs. published TAP2, raw FlashABB | After refinement |
 |---|---:|---:|
