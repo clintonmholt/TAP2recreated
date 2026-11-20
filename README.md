@@ -1,13 +1,13 @@
 # Therapeutic Antibody Profiler2
 
 ```text
-==\\     //==                                    ==\\     //==
-  \\     //       TTTTT   AAA   PPPP    222        \\     //
-   \\   //          T    A   A  P   P  2   2        \\   //
-    \\_//           T    AAAAA  PPPP     22          \\_//
-     ||             T    A   A  P       2             ||
-     ||             T    A   A  P      22222          ||
-     ||                                               ||
+\\       //                                  \\       //
+ \\     //       _____  _    ____ ____        \\     //
+  \\   //       |_   _|/ \  |  _ \___ \        \\   //
+   \\_//          | | / _ \ | |_) |__) |        \\_//
+     ||           | |/ ___ \|  __// __/           ||
+     ||           |_/_/   \_\_|  |_____|          ||
+     ||                                           ||
 ```
 
 TAP2recreated is an independent reconstruction of the Therapeutic Antibody Profiler 2 (TAP2) scoring algorithm. It combines the published TAP methods with the side-chain accessibility implementation from Oxford's [Therapeutic Nanobody Profiler (TNP)](https://github.com/oxpig/TNP). The implementation may differ from the exact code used to generate the published TAP2 results.
@@ -20,7 +20,7 @@ The scorer takes a full-atom, IMGT-numbered antibody Fv PDB and calculates total
 
 ![Published versus recalculated TAP2 scores for 664 ABodyBuilder2 structures, with Pearson and Spearman correlations and amber and red cutoffs](docs/tap2_benchmark.svg)
 
-Against the published scores for 664 clinical-stage ABodyBuilder2 models, CDR length, PPC, PNC, and SFvCSP agreed to the reported precision on every model. PSH agreed within 0.0001 on 663 of 664 models (Pearson *r* = 0.9984, Spearman *ρ* = 0.9979). The exception was rituximab Run 1, with published PSH 112.5059 and recalculated PSH 138.4991. Both values are green under the published thresholds. Rituximab Runs 2 and 3 reproduced their published PSH values. All five flag colors agreed across the Run 1 cohort after rounding scores to the two-decimal precision of the published boundaries.
+Rituximab Run 1 disagreed on PSH, while Runs 2 and 3 agreed. The discrepancy did not change its flag status, and its cause is unclear. All five scores agreed within 0.0001 for the other 663 models, supporting this as a faithful recreation.
 
 Two conventions were inferred from the released benchmark. The scores reproduced using a **4.0 Å** CDR vicinity, although the TAP2 paper describes **4.5 Å**. Exposed salt-bridge partners take glycine's Kyte–Doolittle hydropathy for PSH and retain their residue charges for the charge metrics.
 
