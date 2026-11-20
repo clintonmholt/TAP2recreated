@@ -1,0 +1,58 @@
+# TAP2 developability guidance.
+#
+# Select with `+guidance=tap2`. Guidance always MAXIMISES the weighted
+# objective, so `developability_cost` takes a NEGATIVE weight.
+#
+# The metric reads the `decoded` namespace, so RFD4 runs its differentiable
+# autoencoder decoder on every active step. That is the point (it is where the
+# side-chain coordinates come from) but it is also the cost, so keep the window
+# narrow and start small.
+#
+#   rfd4-generate \
+#       inputs=/path/to/annotated_cifs \
+#       out_dir=./runs/tap2-guided \
+#       num_replicates=1 \
+#       +guidance=tap2
+#
+# Start by comparing against the same seed with no guidance and watch
+# `tap2.psh_mean` move. Increase |w| only once the trajectory is stable.
+
+metrics:
+  tap2:
+    _target_: tap2_torch.rfd4_metric.TAP2GuidanceMetric
+    heavy_chain: H
+    light_chain: L
+    # Equal weight on the three patch metrics. SFvCSP is left at zero: its only
+    # dependence on coordinates is through the exposure gate, which is
+    # saturated for most residues, so its gradient is ~0 (see README).
+    weights:
+      psh: 1.0
+      ppc: 1.0
+      pnc: 1.0
+      sfvcsp: 0.0
+    # Resolve CDR/anchor masks once from the input CIF instead of renumbering
+    # with ANARCII inside the sampling loop.
+    static_vicinity: true
+    strict: false
+    score_kwargs:
+      # Bounds the 1/d^2 clash singularity. 0.0 reproduces the published form.
+      core_softening: 1.2
+      # 60 points is ~15% cheaper than 100 and shifts PSH by well under 1%.
+      n_sasa_points: 60
+
+terms:
+  # The score depends on both sampler leaves: bb_ca positions the backbone,
+  # local_latents carry the side chains through the decoder.
+  tap2.developability_cost:
+    bb_ca:
+      _target_: rfproteina.guidance.schedules.window
+      _partial_: true
+      w: -0.02
+      t_start: 0.5
+      t_end: 0.9
+    local_latents:
+      _target_: rfproteina.guidance.schedules.window
+      _partial_: true
+      w: -0.005
+      t_start: 0.5
+      t_end: 0.9

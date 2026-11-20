@@ -1,0 +1,5 @@
+torch>=2.1
+numpy>=1.24
+biotite>=0.40
+# Optional: IMGT numbering when the input array carries no `imgt_numbering`.
+# anarcii

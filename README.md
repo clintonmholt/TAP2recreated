@@ -89,6 +89,34 @@ python benchmark.py 42003_2023_5744_MOESM4_ESM.xlsx \\
 
 The script writes per-model score comparisons and flag calls to `tap2_2024_benchmark.csv`.
 
+## Differentiable scoring for structure generation
+
+[`tap2_torch/`](tap2_torch/) is a PyTorch reimplementation of the scorer that is
+differentiable with respect to atom coordinates, so TAP2 can steer a structure
+generator during sampling rather than only filter its output. It ships a metric
+for [RFD4-Proteina](https://github.com/RosettaCommons/RFD4-Proteina)'s
+metric-guidance hook, which differentiates a scalar objective against the
+model's predicted clean state at each sampling step.
+
+In its `hard=True` mode it reproduces [`tap_score.py`](tap_score.py) to within
+1.8e-15 relative on all five metrics, with the reference exposure injected so
+the two share a surface calculation. Five step functions in the published
+rules, including the 7.5% exposure threshold and the 3.2 A salt-bridge test, are
+replaced by temperature-controlled smooth forms, and side-chain accessibility
+becomes a soft Shrake-Rupley that is exact in hard mode. The inverse-square pair
+weight is softened at close range by default, using the 1.2 A floor whose effect
+on agreement with published scores is reported above.
+
+See [docs/differentiable.md](docs/differentiable.md) for the method, the
+validation table, and two findings that affect how it should be used: SFvCSP
+carries essentially no gradient, and PSH is flagged when too low as well as too
+high, so it should not simply be minimised.
+
+```sh
+python -m pip install -r requirements-torch.txt
+python -m pytest tests/ -q
+```
+
 ## References and attribution
 
 1. **TAP1.** Raybould, M. I. J. et al. *Five computational developability guidelines for therapeutic antibody profiling.* PNAS (2019). [doi:10.1073/pnas.1810576116](https://doi.org/10.1073/pnas.1810576116)
